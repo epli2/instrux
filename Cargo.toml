@@ -1,0 +1,7 @@
+[package]
+name = "instrux"
+version = "0.1.0"
+edition = "2024"
+description = "Unified Instruction Manager for AI-powered Coding Tools"
+
+[dependencies]
