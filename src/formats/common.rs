@@ -39,7 +39,10 @@ where
                 let path = format!(".instrux/instructions/{}", body_file);
                 match std::fs::read_to_string(&path) {
                     Ok(content) => output.push_str(&content),
-                    Err(_) => output.push_str(&format!("<!-- Content from file: {} (not found) -->\n\n", body_file)),
+                    Err(_) => output.push_str(&format!(
+                        "<!-- Content from file: {} (not found) -->\n\n",
+                        body_file
+                    )),
                 }
                 output.push_str("\n\n");
             }
