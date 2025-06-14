@@ -1,5 +1,5 @@
-mod opts;
 mod model;
+mod opts;
 mod commands {
     pub mod diff;
     pub mod generate;
