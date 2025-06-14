@@ -1,4 +1,4 @@
-use crate::formats::{get_converter, ToFormat};
+use crate::formats::get_converter;
 use crate::model::types::{InstruxConfiguration, Targets};
 use similar::{ChangeTag, TextDiff};
 use std::fs;
