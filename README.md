@@ -49,14 +49,14 @@ instrx/                 # ← Git root / Cargo workspace
 
 ### 対応ファイル形式
 
-| 呼称    | 実ファイル名            | ツール                             |
-| ------- | ----------------------- | ---------------------------------- |
-| Cline   | .clinerules             | Cline                              |
-| Copilot | copilot-instructions.md | GitHub Copilot                     |
-| Cursor  | .cursor/rules           | Cursor IDE                         |
-| Junie   | .junie/guidelines.md    | JetBrains Junie                    |
-| Codex   | .codex/instructions.md  | OpenAI Codex                       |
-| Instrux | .instrux/instrux.yaml   | 本ツールで定義する共通フォーマット |
+| 呼称    | 実ファイル名                    | ツール                             |
+| ------- | ------------------------------- | ---------------------------------- |
+| Cline   | .clinerules                     | Cline                              |
+| Copilot | .github/copilot-instructions.md | GitHub Copilot                     |
+| Cursor  | .cursor/rules                   | Cursor IDE                         |
+| Junie   | .junie/guidelines.md            | JetBrains Junie                    |
+| Codex   | .codex/instructions.md          | OpenAI Codex                       |
+| Instrux | .instrux/instrux.yaml           | 本ツールで定義する共通フォーマット |
 
 ### CLI 仕様
 

@@ -1,3 +1,4 @@
+mod formats;
 mod model;
 mod opts;
 mod commands {
@@ -10,6 +11,8 @@ mod commands {
 
 use clap::Parser;
 use opts::{Cli, Commands};
+// Will be used in the command implementations
+// use formats::{ToFormat, FromFormat};
 
 fn main() {
     let cli = Cli::parse();
