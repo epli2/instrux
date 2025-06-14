@@ -1,6 +1,5 @@
 use crate::formats;
 use crate::model::parser::parse_instrux_yaml;
-use crate::model::types::Targets;
 use std::fs;
 
 // generateコマンドの基本処理
@@ -21,10 +20,6 @@ pub fn run(dry_run: bool, force: bool, watch: bool) {
     };
 
     for target in config.targets.keys() {
-        // 未実装はスキップ
-        if *target == Targets::Cursor {
-            continue;
-        }
         let converter = formats::get_converter(target);
         let output = match converter.to_format(&config) {
             Ok(s) => s,
