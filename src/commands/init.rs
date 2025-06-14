@@ -42,10 +42,7 @@ pub fn run(from: Option<String>) {
             language: crate::model::types::InstruxConfigurationLanguage::English,
             targets: {
                 let mut map = std::collections::HashMap::new();
-                map.insert(
-                    Targets::Copilot,
-                    InstruxConfigurationTargetsValue::default(),
-                );
+                map.insert(target, InstruxConfigurationTargetsValue::default());
                 map
             },
             version: "0.1.0".parse().unwrap(),

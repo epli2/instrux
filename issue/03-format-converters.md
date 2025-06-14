@@ -11,7 +11,7 @@
   - Copilot: `.github/copilot-instructions.md`
   - Cursor: `.cursor/rules`
   - Junie: `.junie/guidelines.md`
-  - Codex: `.codex/instructions.md`
+  - Codex: `CODEX.md`
 - 各形式の特殊な要件や制約に対応
 
 ## タスク
@@ -36,7 +36,7 @@
 - ⬜ Cline変換器の実装
 - ⬜ Cursor変換器の実装
 - ✅ Junie変換器の実装
-- ⬜ Codex変換器の実装
+- ✅ Codex変換器の実装
 
 ## Copilot形式の実装詳細
 
