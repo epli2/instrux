@@ -2,6 +2,7 @@ version: 0.1.0
 targets:
   copilot:
     outputMode: multiple
+  codex: {}
   cline: {}
   cursor: {}
   junie: {}
