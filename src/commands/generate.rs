@@ -22,7 +22,7 @@ pub fn run(dry_run: bool, force: bool, watch: bool) {
 
     for target in config.targets.keys() {
         // 未実装はスキップ
-        if *target == Targets::Cline || *target == Targets::Cursor {
+        if *target == Targets::Cursor {
             continue;
         }
         let converter = formats::get_converter(target);
