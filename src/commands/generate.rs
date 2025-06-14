@@ -10,7 +10,7 @@ pub fn run(dry_run: bool, force: bool, watch: bool) {
         dry_run, force, watch
     );
 
-    // 1. instrux.yamlから内部モデルを読み込む
+    // instrux.yamlから内部モデルを読み込む
     let config_path = ".instrux/instrux.yaml";
     let config = match parse_instrux_yaml(config_path) {
         Ok(cfg) => cfg,
@@ -20,18 +20,21 @@ pub fn run(dry_run: bool, force: bool, watch: bool) {
         }
     };
 
-    // 2. Copilot形式に変換
-    if config.targets.contains_key(&Targets::Copilot) {
-        let converter = formats::get_converter(&Targets::Copilot);
+    for target in config.targets.keys() {
+        // 未実装はスキップ
+        if *target == Targets::Cline || *target == Targets::Codex || *target == Targets::Cursor {
+            continue;
+        }
+        let converter = formats::get_converter(target);
         let output = match converter.to_format(&config) {
             Ok(s) => s,
             Err(e) => {
-                eprintln!("[generate] Copilot形式への変換に失敗: {}", e);
+                eprintln!("[generate] {}形式への変換に失敗: {}", target, e);
                 return;
             }
         };
 
-        // 3. ファイル出力
+        // ファイル出力
         let out_path = converter.get_default_path();
         if dry_run {
             println!(

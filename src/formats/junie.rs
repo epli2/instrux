@@ -1,14 +1,33 @@
+use super::common;
 use super::{FromFormat, ToFormat};
-use crate::model::types::{InstructionItem, InstruxConfiguration};
+use crate::model::types::{
+    InstructionItem, InstructionItemVariant0Targets, InstructionItemVariant1Targets,
+    InstructionItemVariant2Targets, InstruxConfiguration, Targets,
+};
 use std::path::PathBuf;
 
 /// Converter for Junie format (.junie/guidelines.md)
 pub struct JunieConverter {}
 
 impl ToFormat for JunieConverter {
-    fn to_format(&self, _config: &InstruxConfiguration) -> Result<String, String> {
-        // TODO: Implement conversion to Junie format
-        Err("Not implemented yet".to_string())
+    fn to_format(&self, config: &InstruxConfiguration) -> Result<String, String> {
+        let mut output = String::new();
+
+        // Header
+        output.push_str("# Junie Guidelines\n\n");
+
+        common::process_instructions_common(
+            &mut output,
+            &config.instructions,
+            0,
+            |item| match item {
+                InstructionItem::Variant0 { targets, .. } => is_target_for_junie(targets),
+                InstructionItem::Variant1 { targets, .. } => is_target_for_junie(targets),
+                InstructionItem::Variant2 { targets, .. } => is_target_for_junie(targets),
+            },
+        )?;
+
+        Ok(output)
     }
 
     fn get_default_path(&self) -> PathBuf {
@@ -16,12 +35,49 @@ impl ToFormat for JunieConverter {
     }
 }
 
+fn is_target_for_junie<T>(targets: &T) -> bool
+where
+    T: TargetsChecker,
+{
+    targets.is_for_junie()
+}
+
+trait TargetsChecker {
+    fn is_for_junie(&self) -> bool;
+}
+
+impl TargetsChecker for InstructionItemVariant0Targets {
+    fn is_for_junie(&self) -> bool {
+        match self {
+            InstructionItemVariant0Targets::Variant0(list) => list.contains(&Targets::Junie),
+            InstructionItemVariant0Targets::Variant1(s) => s == "all",
+        }
+    }
+}
+
+impl TargetsChecker for InstructionItemVariant1Targets {
+    fn is_for_junie(&self) -> bool {
+        match self {
+            InstructionItemVariant1Targets::Variant0(list) => list.contains(&Targets::Junie),
+            InstructionItemVariant1Targets::Variant1(s) => s == "all",
+        }
+    }
+}
+
+impl TargetsChecker for InstructionItemVariant2Targets {
+    fn is_for_junie(&self) -> bool {
+        match self {
+            InstructionItemVariant2Targets::Variant0(list) => list.contains(&Targets::Junie),
+            InstructionItemVariant2Targets::Variant1(s) => s == "all",
+        }
+    }
+}
+
 /// Parser for Junie format
 pub struct JunieParser {}
 
 impl FromFormat for JunieParser {
-    fn from_format(_content: &str) -> Result<Vec<InstructionItem>, String> {
-        // TODO: Implement parsing from Junie format
-        Err("Not implemented yet".to_string())
+    fn from_format(content: &str) -> Result<Vec<InstructionItem>, String> {
+        common::parse_markdown_instructions(content, Targets::Junie)
     }
 }
