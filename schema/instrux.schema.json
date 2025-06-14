@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Instrux Configuration",
+  "type": "object",
+  "required": ["version", "targets"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Semantic version of this config file",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9\\.]+)?$"
+    },
+    "targets": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "#/$defs/targets"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "outputMode": {
+            "type": "string",
+            "description": "Whether to output to a single file or multiple files for this target",
+            "enum": ["single", "multiple"],
+            "default": "single"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "AI coding tool formats to generate, each as a property with optional settings"
+    },
+    "language": {
+      "type": "string",
+      "description": "Human language for generated instructions",
+      "default": "English",
+      "enum": ["English", "Japanese"]
+    },
+    "instructions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/instruction_item"
+      },
+      "description": "List of instructions to generate"
+    }
+  },
+  "$defs": {
+    "targets": {
+      "type": "string",
+      "description": "AI coding tool format to generate",
+      "enum": ["copilot", "cline", "cursor", "junie", "codex"]
+    },
+    "instruction_item": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Title of the instruction"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the instruction"
+        },
+        "disable": {
+          "type": "boolean",
+          "description": "Disable this instruction",
+          "default": false
+        },
+        "targets": {
+          "default": "all",
+          "oneOf": [
+            {
+              "type": "array",
+              "description": "List of targets to generate this instruction for",
+              "items": { "$ref": "#/$defs/targets" }
+            },
+            {
+              "type": "string",
+              "description": "Apply to all targets",
+              "const": "all"
+            }
+          ]
+        },
+        "body": {
+          "type": "string",
+          "description": "Instruction body content"
+        },
+        "body_file": {
+          "type": "string",
+          "description": "Name of file containing the instruction body"
+        },
+        "instructions": {
+          "type": "array",
+          "description": "Nested instructions",
+          "items": {
+            "$ref": "#/$defs/instruction_item"
+          }
+        }
+      },
+      "anyOf": [
+        { "required": ["body"] },
+        { "required": ["body_file"] },
+        { "required": ["instructions"] }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

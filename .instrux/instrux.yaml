@@ -1,0 +1,18 @@
+version: 0.1.0
+targets:
+  copilot:
+    outputMode: multiple
+  cline: {}
+  cursor: {}
+  junie: {}
+language: Japanese
+instructions:
+  - title: コーディング
+    instructions:
+      - title: コメント
+        body_file: comments.md
+      - title: TDD
+        body: テスト駆動開発（TDD）を実践してください。まずテストを書き、その後に実装を行います。
+
+  - title: コミットメッセージ
+    body: コミットメッセージはConventional Commits仕様に従ってください。

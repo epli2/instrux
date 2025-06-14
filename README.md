@@ -79,8 +79,4 @@ instrx/                 # ← Git root / Cargo workspace
 
 #### instrux.yaml
 
-```yaml
-version: 0.1.0
-targets: [copilot, cline, cursor]
-language: Japanese
-```
+`schema/instrux.schema.json`参照
