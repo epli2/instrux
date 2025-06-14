@@ -35,7 +35,7 @@
   - ✅ テストケース作成
 - ⬜ Cline変換器の実装
 - ⬜ Cursor変換器の実装
-- ⬜ Junie変換器の実装
+- ✅ Junie変換器の実装
 - ⬜ Codex変換器の実装
 
 ## Copilot形式の実装詳細
