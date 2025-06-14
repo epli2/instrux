@@ -1,5 +1,7 @@
 # Instrux
 
+[![CI](https://github.com/epli2/instrux/actions/workflows/rust.yml/badge.svg)](https://github.com/epli2/instrux/actions/workflows/rust.yml)
+
 WIP
 
 **Unified Instruction Manager for AI-powered Coding Tools**
