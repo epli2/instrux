@@ -150,7 +150,11 @@ impl FromFormat for JunieParser {
                 let title = line.trim_start_matches('#').trim().to_string();
 
                 if !current_title.is_empty() {
-                    sections.push((current_level, current_title.clone(), current_section.clone()));
+                    sections.push((
+                        current_level,
+                        current_title.clone(),
+                        current_section.clone(),
+                    ));
                     current_section.clear();
                 }
 
@@ -163,7 +167,11 @@ impl FromFormat for JunieParser {
         }
 
         if !current_title.is_empty() {
-            sections.push((current_level, current_title.clone(), current_section.clone()));
+            sections.push((
+                current_level,
+                current_title.clone(),
+                current_section.clone(),
+            ));
         }
 
         for (level, title, body) in sections {
