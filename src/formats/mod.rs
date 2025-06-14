@@ -3,6 +3,7 @@ use std::path::PathBuf;
 
 mod cline;
 mod codex;
+mod common;
 mod copilot;
 mod cursor;
 mod junie;

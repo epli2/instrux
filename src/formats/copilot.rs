@@ -1,4 +1,5 @@
 use super::{FromFormat, ToFormat};
+use crate::formats::common;
 use crate::model::types::{
     InstructionItem, InstructionItemVariant0Targets, InstructionItemVariant1Targets,
     InstructionItemVariant2Targets, InstruxConfiguration, Targets,
@@ -162,74 +163,6 @@ pub struct CopilotParser {}
 
 impl FromFormat for CopilotParser {
     fn from_format(content: &str) -> Result<Vec<InstructionItem>, String> {
-        // Parse Markdown content to extract instructions
-        let mut instructions = Vec::new();
-
-        // Split content by headers
-        let mut sections = Vec::new();
-        let mut current_section = String::new();
-        let mut current_level = 0;
-        let mut current_title = String::new();
-
-        for line in content.lines() {
-            if line.starts_with('#') {
-                // Count the level (number of # characters)
-                let level = line.chars().take_while(|&c| c == '#').count();
-                let title = line.trim_start_matches('#').trim().to_string();
-
-                // If we have a current section, save it
-                if !current_title.is_empty() {
-                    sections.push((
-                        current_level,
-                        current_title.clone(),
-                        current_section.clone(),
-                    ));
-                    current_section.clear();
-                }
-
-                current_level = level;
-                current_title = title;
-            } else {
-                current_section.push_str(line);
-                current_section.push('\n');
-            }
-        }
-
-        // Add the last section
-        if !current_title.is_empty() {
-            sections.push((
-                current_level,
-                current_title.clone(),
-                current_section.clone(),
-            ));
-        }
-
-        // Process sections to create instruction items
-        // We don't actually use the section_stack in this implementation, but it would be used
-        // for a more sophisticated parsing strategy that preserves the hierarchy
-
-        for (level, title, body) in sections {
-            // Skip the top-level header (usually "Copilot Instructions")
-            if level <= 1 {
-                continue;
-            }
-
-            // Create a new instruction
-            let instruction = InstructionItem::Variant0 {
-                title,
-                body: body.trim().to_string(),
-                description: None,
-                disable: false,
-                targets: InstructionItemVariant0Targets::Variant0(vec![Targets::Copilot]),
-            };
-
-            instructions.push(instruction);
-        }
-
-        if instructions.is_empty() {
-            return Err("No valid instructions found in the Copilot format file".to_string());
-        }
-
-        Ok(instructions)
+        common::parse_markdown_instructions(content, Targets::Copilot)
     }
 }
