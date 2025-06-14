@@ -1,5 +1,60 @@
 use crate::model::types::{InstructionItem, InstructionItemVariant0Targets, Targets};
 
+/// 共通: 再帰的にInstructionItemをMarkdown出力
+pub fn process_instructions_common<F>(
+    output: &mut String,
+    instructions: &[InstructionItem],
+    level: usize,
+    is_target: F,
+) -> Result<(), String>
+where
+    F: Fn(&InstructionItem) -> bool + Copy,
+{
+    for instruction in instructions {
+        match instruction {
+            InstructionItem::Variant0 {
+                title,
+                body,
+                disable,
+                ..
+            } => {
+                if *disable || !is_target(instruction) {
+                    continue;
+                }
+                output.push_str(&format!("{} {}\n\n", "#".repeat(level + 2), title));
+                output.push_str(body);
+                output.push_str("\n\n");
+            }
+            InstructionItem::Variant1 {
+                title,
+                body_file,
+                disable,
+                ..
+            } => {
+                if *disable || !is_target(instruction) {
+                    continue;
+                }
+                output.push_str(&format!("{} {}\n\n", "#".repeat(level + 2), title));
+                // TODO: ファイルからの内容読み込み
+                output.push_str(&format!("<!-- Content from file: {} -->\n\n", body_file));
+            }
+            InstructionItem::Variant2 {
+                title,
+                instructions: nested,
+                disable,
+                ..
+            } => {
+                if *disable || !is_target(instruction) {
+                    continue;
+                }
+                output.push_str(&format!("{} {}\n\n", "#".repeat(level + 2), title));
+                process_instructions_common(output, nested, level + 1, is_target)?;
+            }
+        }
+    }
+    Ok(())
+}
+
 /// 共通: Markdownヘッダ区切りでInstructionItemを抽出
 pub fn parse_markdown_instructions(
     content: &str,
