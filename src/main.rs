@@ -1,3 +1,4 @@
+mod diff;
 mod formats;
 mod model;
 mod opts;
