@@ -1,6 +1,7 @@
 mod formats;
 mod model;
 mod opts;
+mod diff;
 mod commands {
     pub mod diff;
     pub mod generate;
