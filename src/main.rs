@@ -20,10 +20,11 @@ fn main() {
     match cli.command {
         Commands::Generate {
             dry_run,
+            overwrite,
             force,
             watch,
         } => {
-            commands::generate::run(dry_run, force, watch);
+            commands::generate::run(dry_run, overwrite, force, watch);
         }
         Commands::Init { from } => {
             commands::init::run(from);
