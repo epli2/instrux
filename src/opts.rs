@@ -12,10 +12,16 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     Generate {
+        /// dry-run: ファイルを出力せず内容のみ表示
         #[arg(long)]
         dry_run: bool,
+        /// overwrite: 既存ファイルを上書きし、バックアップファイル(.bak)を作成
+        #[arg(long)]
+        overwrite: bool,
+        /// force: バックアップを作成せず強制上書き
         #[arg(long)]
         force: bool,
+        /// watch: ファイル変更を監視して自動生成
         #[arg(long)]
         watch: bool,
     },
