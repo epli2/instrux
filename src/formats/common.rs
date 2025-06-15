@@ -1,4 +1,39 @@
-use crate::model::types::{InstructionItem, InstructionItemVariant0Targets, Targets};
+use crate::model::types::{
+    InstructionItem, InstructionItemVariant0Targets, InstructionItemVariant1Targets,
+    InstructionItemVariant2Targets, Targets,
+};
+
+/// 各ターゲットバリアント型に対するターゲット判定用トレイト
+/// 任意のターゲットに対して有効かどうかを判定する
+pub trait TargetsChecker {
+    /// 指定ターゲット向けか判定
+    fn is_for_target(&self, target: Targets) -> bool;
+}
+
+impl TargetsChecker for InstructionItemVariant0Targets {
+    fn is_for_target(&self, target: Targets) -> bool {
+        match self {
+            InstructionItemVariant0Targets::Variant0(list) => list.contains(&target),
+            InstructionItemVariant0Targets::Variant1(s) => s == "all",
+        }
+    }
+}
+impl TargetsChecker for InstructionItemVariant1Targets {
+    fn is_for_target(&self, target: Targets) -> bool {
+        match self {
+            InstructionItemVariant1Targets::Variant0(list) => list.contains(&target),
+            InstructionItemVariant1Targets::Variant1(s) => s == "all",
+        }
+    }
+}
+impl TargetsChecker for InstructionItemVariant2Targets {
+    fn is_for_target(&self, target: Targets) -> bool {
+        match self {
+            InstructionItemVariant2Targets::Variant0(list) => list.contains(&target),
+            InstructionItemVariant2Targets::Variant1(s) => s == "all",
+        }
+    }
+}
 
 /// 共通: 再帰的にInstructionItemをMarkdown出力
 pub fn process_instructions_common<F>(
