@@ -12,7 +12,7 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     Generate {
-        /// dry-run: ファイルを出力せず内容のみ表示
+        /// dry-run: ファイルを生成せず、差分を表示(diffと同等)
         #[arg(long)]
         dry_run: bool,
         /// overwrite: 既存ファイルを上書きし、バックアップファイル(.bak)を作成

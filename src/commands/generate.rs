@@ -87,14 +87,10 @@ fn generate_once(dry_run: bool, overwrite: bool, force: bool) {
         // 出力先パスを取得
         let out_path = converter.get_default_path();
 
-        // dry-run: 内容のみ表示しファイルは生成しない
+        // dry-run: diffコマンドのロジックを呼び出す
         if dry_run {
-            println!(
-                "[generate] dry-run: {} に出力される内容:\n\n{}",
-                out_path.display(),
-                output
-            );
-            continue;
+            crate::commands::diff::run(None);
+            break;
         }
 
         let file_exists = Path::new(&out_path).exists();
