@@ -1,8 +1,6 @@
 use super::{FromFormat, ToFormat, common};
-use crate::model::types::{
-    InstructionItem, InstructionItemVariant0Targets, InstructionItemVariant1Targets,
-    InstructionItemVariant2Targets, InstruxConfiguration, Targets,
-};
+use crate::formats::common::TargetsChecker;
+use crate::model::types::{InstructionItem, InstruxConfiguration, Targets};
 use std::path::PathBuf;
 
 /// Converter for Codex format (CODEX.md)
@@ -17,9 +15,9 @@ impl ToFormat for CodexConverter {
             &config.instructions,
             0,
             |item| match item {
-                InstructionItem::Variant0 { targets, .. } => is_target_for_codex(targets),
-                InstructionItem::Variant1 { targets, .. } => is_target_for_codex(targets),
-                InstructionItem::Variant2 { targets, .. } => is_target_for_codex(targets),
+                InstructionItem::Variant0 { targets, .. } => targets.is_for_target(Targets::Codex),
+                InstructionItem::Variant1 { targets, .. } => targets.is_for_target(Targets::Codex),
+                InstructionItem::Variant2 { targets, .. } => targets.is_for_target(Targets::Codex),
             },
         )?;
         Ok(output)
@@ -36,43 +34,5 @@ pub struct CodexParser {}
 impl FromFormat for CodexParser {
     fn from_format(content: &str) -> Result<Vec<InstructionItem>, String> {
         common::parse_markdown_instructions(content, Targets::Codex)
-    }
-}
-
-fn is_target_for_codex<T>(targets: &T) -> bool
-where
-    T: TargetsChecker,
-{
-    targets.is_for_codex()
-}
-
-trait TargetsChecker {
-    fn is_for_codex(&self) -> bool;
-}
-
-impl TargetsChecker for InstructionItemVariant0Targets {
-    fn is_for_codex(&self) -> bool {
-        match self {
-            InstructionItemVariant0Targets::Variant0(list) => list.contains(&Targets::Codex),
-            InstructionItemVariant0Targets::Variant1(s) => s == "all",
-        }
-    }
-}
-
-impl TargetsChecker for InstructionItemVariant1Targets {
-    fn is_for_codex(&self) -> bool {
-        match self {
-            InstructionItemVariant1Targets::Variant0(list) => list.contains(&Targets::Codex),
-            InstructionItemVariant1Targets::Variant1(s) => s == "all",
-        }
-    }
-}
-
-impl TargetsChecker for InstructionItemVariant2Targets {
-    fn is_for_codex(&self) -> bool {
-        match self {
-            InstructionItemVariant2Targets::Variant0(list) => list.contains(&Targets::Codex),
-            InstructionItemVariant2Targets::Variant1(s) => s == "all",
-        }
     }
 }

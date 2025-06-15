@@ -1,9 +1,6 @@
-use super::common;
+use super::common::{self, TargetsChecker};
 use super::{FromFormat, ToFormat};
-use crate::model::types::{
-    InstructionItem, InstructionItemVariant0Targets, InstructionItemVariant1Targets,
-    InstructionItemVariant2Targets, InstruxConfiguration, Targets,
-};
+use crate::model::types::{InstructionItem, InstruxConfiguration, Targets};
 use std::path::PathBuf;
 
 /// Converter for Cline format (.clinerules)
@@ -21,9 +18,10 @@ impl ToFormat for ClineConverter {
             &config.instructions,
             0,
             |item| match item {
-                InstructionItem::Variant0 { targets, .. } => is_target_for_cline(targets),
-                InstructionItem::Variant1 { targets, .. } => is_target_for_cline(targets),
-                InstructionItem::Variant2 { targets, .. } => is_target_for_cline(targets),
+                // 共通トレイトでターゲット判定
+                InstructionItem::Variant0 { targets, .. } => targets.is_for_target(Targets::Cline),
+                InstructionItem::Variant1 { targets, .. } => targets.is_for_target(Targets::Cline),
+                InstructionItem::Variant2 { targets, .. } => targets.is_for_target(Targets::Cline),
             },
         )?;
 
@@ -32,44 +30,6 @@ impl ToFormat for ClineConverter {
 
     fn get_default_path(&self) -> PathBuf {
         PathBuf::from(".clinerules")
-    }
-}
-
-fn is_target_for_cline<T>(targets: &T) -> bool
-where
-    T: TargetsChecker,
-{
-    targets.is_for_cline()
-}
-
-trait TargetsChecker {
-    fn is_for_cline(&self) -> bool;
-}
-
-impl TargetsChecker for InstructionItemVariant0Targets {
-    fn is_for_cline(&self) -> bool {
-        match self {
-            InstructionItemVariant0Targets::Variant0(list) => list.contains(&Targets::Cline),
-            InstructionItemVariant0Targets::Variant1(s) => s == "all",
-        }
-    }
-}
-
-impl TargetsChecker for InstructionItemVariant1Targets {
-    fn is_for_cline(&self) -> bool {
-        match self {
-            InstructionItemVariant1Targets::Variant0(list) => list.contains(&Targets::Cline),
-            InstructionItemVariant1Targets::Variant1(s) => s == "all",
-        }
-    }
-}
-
-impl TargetsChecker for InstructionItemVariant2Targets {
-    fn is_for_cline(&self) -> bool {
-        match self {
-            InstructionItemVariant2Targets::Variant0(list) => list.contains(&Targets::Cline),
-            InstructionItemVariant2Targets::Variant1(s) => s == "all",
-        }
     }
 }
 

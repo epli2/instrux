@@ -1,9 +1,7 @@
 use super::common;
 use super::{FromFormat, ToFormat};
-use crate::model::types::{
-    InstructionItem, InstructionItemVariant0Targets, InstructionItemVariant1Targets,
-    InstructionItemVariant2Targets, InstruxConfiguration, Targets,
-};
+use crate::formats::common::TargetsChecker;
+use crate::model::types::{InstructionItem, InstruxConfiguration, Targets};
 use std::path::PathBuf;
 
 /// Converter for Junie format (.junie/guidelines.md)
@@ -21,9 +19,9 @@ impl ToFormat for JunieConverter {
             &config.instructions,
             0,
             |item| match item {
-                InstructionItem::Variant0 { targets, .. } => is_target_for_junie(targets),
-                InstructionItem::Variant1 { targets, .. } => is_target_for_junie(targets),
-                InstructionItem::Variant2 { targets, .. } => is_target_for_junie(targets),
+                InstructionItem::Variant0 { targets, .. } => targets.is_for_target(Targets::Junie),
+                InstructionItem::Variant1 { targets, .. } => targets.is_for_target(Targets::Junie),
+                InstructionItem::Variant2 { targets, .. } => targets.is_for_target(Targets::Junie),
             },
         )?;
 
@@ -32,44 +30,6 @@ impl ToFormat for JunieConverter {
 
     fn get_default_path(&self) -> PathBuf {
         PathBuf::from(".junie/guidelines.md")
-    }
-}
-
-fn is_target_for_junie<T>(targets: &T) -> bool
-where
-    T: TargetsChecker,
-{
-    targets.is_for_junie()
-}
-
-trait TargetsChecker {
-    fn is_for_junie(&self) -> bool;
-}
-
-impl TargetsChecker for InstructionItemVariant0Targets {
-    fn is_for_junie(&self) -> bool {
-        match self {
-            InstructionItemVariant0Targets::Variant0(list) => list.contains(&Targets::Junie),
-            InstructionItemVariant0Targets::Variant1(s) => s == "all",
-        }
-    }
-}
-
-impl TargetsChecker for InstructionItemVariant1Targets {
-    fn is_for_junie(&self) -> bool {
-        match self {
-            InstructionItemVariant1Targets::Variant0(list) => list.contains(&Targets::Junie),
-            InstructionItemVariant1Targets::Variant1(s) => s == "all",
-        }
-    }
-}
-
-impl TargetsChecker for InstructionItemVariant2Targets {
-    fn is_for_junie(&self) -> bool {
-        match self {
-            InstructionItemVariant2Targets::Variant0(list) => list.contains(&Targets::Junie),
-            InstructionItemVariant2Targets::Variant1(s) => s == "all",
-        }
     }
 }
 
