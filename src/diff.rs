@@ -4,8 +4,12 @@ use similar::{ChangeTag, TextDiff};
 use std::fs;
 
 /// 指定されたターゲット形式との内容差分を取得
-pub fn diff_from_config(config: &InstruxConfiguration, target: Targets) -> Result<String, String> {
-    let converter = get_converter(&target, &InstruxConfigurationTargetsValue::default());
+pub fn diff_from_config(
+    config: &InstruxConfiguration,
+    target: Targets,
+    target_config: &InstruxConfigurationTargetsValue,
+) -> Result<String, String> {
+    let converter = get_converter(&target, target_config);
     let expected_result = converter.to_format(config)?;
 
     match expected_result {
