@@ -80,9 +80,19 @@ impl ToFormat for CopilotMultipleConverter {
                 InstructionItem::Variant1 { title, .. } => title,
                 InstructionItem::Variant2 { title, .. } => title,
             };
+            let description = match instruction {
+                InstructionItem::Variant0 { description, .. } => description.as_ref(),
+                InstructionItem::Variant1 { description, .. } => description.as_ref(),
+                InstructionItem::Variant2 { description, .. } => description.as_ref(),
+            };
+            let frontmatter = if let Some(description) = description {
+                format!("---\ndescription: {}\n---\n\n", description)
+            } else {
+                String::new()
+            };
             let content = Self::instruction_to_md(instruction, 1);
             let file_path = format!(".github/instructions/{}.instructions.md", title);
-            files.insert(file_path, content);
+            files.insert(file_path, format!("{}{}", frontmatter, content));
         }
         Ok(FormatResult::Multiple(files))
     }

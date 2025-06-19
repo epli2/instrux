@@ -61,7 +61,7 @@ fn test_copilot_multiple_converter_to_format() {
     let expected_files = vec![
         (
             ".github/instructions/インストラクション1.instructions.md",
-            "# インストラクション1\n\n本文1\n",
+            "---\ndescription: 説明1\n---\n\n# インストラクション1\n\n本文1\n",
         ),
         (
             ".github/instructions/インストラクション2.instructions.md",
