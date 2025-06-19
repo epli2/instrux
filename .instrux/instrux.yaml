@@ -9,6 +9,7 @@ targets:
 language: Japanese
 instructions:
   - title: コーディング
+    description: コーディングに関するルール
     instructions:
       - title: コメント
         body_file: comments.md
