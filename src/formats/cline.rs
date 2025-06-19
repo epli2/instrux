@@ -1,5 +1,5 @@
 use super::common::{self, TargetsChecker};
-use super::{FromFormat, ToFormat};
+use super::{FormatResult, FromFormat, ToFormat};
 use crate::model::types::{InstructionItem, InstruxConfiguration, Targets};
 use std::path::PathBuf;
 
@@ -7,7 +7,7 @@ use std::path::PathBuf;
 pub struct ClineConverter {}
 
 impl ToFormat for ClineConverter {
-    fn to_format(&self, config: &InstruxConfiguration) -> Result<String, String> {
+    fn to_format(&self, config: &InstruxConfiguration) -> Result<FormatResult, String> {
         let mut output = String::new();
 
         // Header for Cline format
@@ -25,7 +25,7 @@ impl ToFormat for ClineConverter {
             },
         )?;
 
-        Ok(output)
+        Ok(FormatResult::Single(output))
     }
 
     fn get_default_path(&self) -> PathBuf {

@@ -1,4 +1,4 @@
-use super::{FromFormat, ToFormat};
+use super::{FormatResult, FromFormat, ToFormat};
 use crate::formats::common::TargetsChecker;
 use crate::{
     formats::common,
@@ -10,7 +10,7 @@ use std::path::PathBuf;
 pub struct CursorConverter {}
 
 impl ToFormat for CursorConverter {
-    fn to_format(&self, config: &InstruxConfiguration) -> Result<String, String> {
+    fn to_format(&self, config: &InstruxConfiguration) -> Result<FormatResult, String> {
         let mut output = String::new();
         let header = r#"---
 description: Project Rules
@@ -32,7 +32,7 @@ alwaysApply: true
             },
         )?;
 
-        Ok(output)
+        Ok(FormatResult::Single(output))
     }
 
     fn get_default_path(&self) -> PathBuf {

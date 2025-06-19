@@ -1,15 +1,31 @@
-use crate::formats::get_converter;
-use crate::model::types::{InstruxConfiguration, Targets};
+use crate::formats::{FormatResult, get_converter};
+use crate::model::types::{InstruxConfiguration, InstruxConfigurationTargetsValue, Targets};
 use similar::{ChangeTag, TextDiff};
 use std::fs;
 
 /// 指定されたターゲット形式との内容差分を取得
 pub fn diff_from_config(config: &InstruxConfiguration, target: Targets) -> Result<String, String> {
-    let converter = get_converter(&target);
-    let expected = converter.to_format(config)?;
-    let path = converter.get_default_path();
-    let current = fs::read_to_string(path).unwrap_or_default();
-    Ok(make_diff(&current, &expected))
+    let converter = get_converter(&target, &InstruxConfigurationTargetsValue::default());
+    let expected_result = converter.to_format(config)?;
+
+    match expected_result {
+        FormatResult::Single(expected) => {
+            let path = converter.get_default_path();
+            let current = fs::read_to_string(path).unwrap_or_default();
+            Ok(make_diff(&current, &expected))
+        }
+        FormatResult::Multiple(files) => {
+            // 複数ファイルの場合は一つの差分にまとめる
+            let mut result = String::new();
+            for (file_path, expected_content) in files {
+                let current = fs::read_to_string(&file_path).unwrap_or_default();
+                result.push_str(&format!("--- {}\n", file_path));
+                result.push_str(&make_diff(&current, &expected_content));
+                result.push_str("\n\n");
+            }
+            Ok(result)
+        }
+    }
 }
 
 /// 文字列同士の差分をANSIカラー付きで生成

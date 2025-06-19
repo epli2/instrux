@@ -1,4 +1,4 @@
-use super::{FromFormat, ToFormat};
+use super::{FormatResult, FromFormat, ToFormat};
 use crate::formats::common;
 use crate::formats::common::TargetsChecker;
 use crate::model::types::{InstructionItem, InstruxConfiguration, Targets};
@@ -8,7 +8,7 @@ use std::path::PathBuf;
 pub struct CopilotConverter {}
 
 impl ToFormat for CopilotConverter {
-    fn to_format(&self, config: &InstruxConfiguration) -> Result<String, String> {
+    fn to_format(&self, config: &InstruxConfiguration) -> Result<FormatResult, String> {
         let mut output = String::new();
 
         // Add header section with metadata
@@ -31,7 +31,7 @@ impl ToFormat for CopilotConverter {
             },
         )?;
 
-        Ok(output)
+        Ok(FormatResult::Single(output))
     }
 
     fn get_default_path(&self) -> PathBuf {

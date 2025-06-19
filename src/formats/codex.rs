@@ -1,4 +1,4 @@
-use super::{FromFormat, ToFormat, common};
+use super::{FormatResult, FromFormat, ToFormat, common};
 use crate::formats::common::TargetsChecker;
 use crate::model::types::{InstructionItem, InstruxConfiguration, Targets};
 use std::path::PathBuf;
@@ -7,7 +7,7 @@ use std::path::PathBuf;
 pub struct CodexConverter {}
 
 impl ToFormat for CodexConverter {
-    fn to_format(&self, config: &InstruxConfiguration) -> Result<String, String> {
+    fn to_format(&self, config: &InstruxConfiguration) -> Result<FormatResult, String> {
         let mut output = String::new();
         output.push_str("# Codex Instructions\n\n");
         common::process_instructions_common(
@@ -20,7 +20,7 @@ impl ToFormat for CodexConverter {
                 InstructionItem::Variant2 { targets, .. } => targets.is_for_target(Targets::Codex),
             },
         )?;
-        Ok(output)
+        Ok(FormatResult::Single(output))
     }
 
     fn get_default_path(&self) -> PathBuf {
