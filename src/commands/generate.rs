@@ -1,5 +1,6 @@
 use crate::formats;
 use crate::model::parser::parse_instrux_yaml;
+use crate::model::types::Targets;
 use std::fs;
 use std::path::Path;
 use std::sync::mpsc::channel;
@@ -73,95 +74,186 @@ fn generate_once(dry_run: bool, overwrite: bool, force: bool) {
         }
     };
 
+    // dry-run: diffコマンドのロジックを呼び出して終了
+    if dry_run {
+        crate::commands::diff::run(None);
+        return;
+    }
+
     // 各ターゲットごとにファイル生成
-    for target in config.targets.keys() {
-        let converter = formats::get_converter(target);
-        let output = match converter.to_format(&config) {
-            Ok(s) => s,
+    // 各ターゲットごとにkey, valueをget_converterに渡してファイル生成
+    for (target, value) in &config.targets {
+        // converterを取得（key, value両方を渡す）
+        let converter = formats::get_converter(target, value);
+        let format_result = match converter.to_format(&config) {
+            Ok(result) => result,
             Err(e) => {
                 eprintln!("[generate] {}形式への変換に失敗: {}", target, e);
                 return;
             }
         };
 
-        // 出力先パスを取得
-        let out_path = converter.get_default_path();
+        // FormatResultに応じて処理を分岐
+        match format_result {
+            formats::FormatResult::Single(output) => {
+                // 単一ファイルの場合
+                let out_path = converter.get_default_path();
+                process_single_file(target, &out_path, &output, overwrite, force);
+            }
+            formats::FormatResult::Multiple(files) => {
+                // 複数ファイルの場合
+                let base_path = converter.get_default_path();
 
-        // dry-run: diffコマンドのロジックを呼び出す
-        if dry_run {
-            crate::commands::diff::run(None);
-            break;
-        }
-
-        let file_exists = Path::new(&out_path).exists();
-
-        // overwrite: バックアップ作成して上書き
-        if file_exists && overwrite {
-            // 既存ファイルと新規内容が異なる場合のみバックアップ・上書き
-            match fs::read_to_string(&out_path) {
-                Ok(existing_content) => {
-                    if existing_content == output {
-                        // 差分がなければ何もせずスキップ
-                        println!("[generate] {} に差分なし。スキップ", out_path.display());
-                        continue;
-                    } else {
-                        // .bak拡張子を追加したバックアップパスを生成
-                        let bak_path = {
-                            let mut bak = out_path.clone();
-                            let bak_os = bak
-                                .file_name()
-                                .map(|n| {
-                                    let mut s = n.to_os_string();
-                                    s.push(".bak");
-                                    s
-                                })
-                                .unwrap();
-                            bak.set_file_name(bak_os);
-                            bak
-                        };
-                        if let Err(e) = fs::copy(&out_path, &bak_path) {
-                            eprintln!("[generate] バックアップ作成に失敗: {}", e);
-                            continue;
+                // ベースディレクトリの作成
+                if !base_path.exists() {
+                    match std::fs::create_dir_all(&base_path) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            eprintln!(
+                                "[generate] ディレクトリ作成に失敗: {}: {}",
+                                base_path.display(),
+                                e
+                            );
+                            return;
                         }
-                        println!("[generate] {} をバックアップしました", bak_path.display());
                     }
                 }
-                Err(e) => {
-                    eprintln!("[generate] 既存ファイルの読み込みに失敗: {}", e);
+
+                // 各ファイルに書き込み
+                for (rel_path, content) in files {
+                    let file_path = std::path::Path::new(&rel_path);
+
+                    // ディレクトリの作成
+                    if let Some(parent) = file_path.parent() {
+                        let full_parent = std::path::Path::new(parent);
+                        if !full_parent.exists() {
+                            match std::fs::create_dir_all(full_parent) {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    eprintln!(
+                                        "[generate] ディレクトリ作成に失敗: {}: {}",
+                                        full_parent.display(),
+                                        e
+                                    );
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+                    process_single_file(target, file_path, &content, overwrite, force);
                 }
             }
-            if let Err(e) = fs::write(&out_path, &output) {
-                eprintln!("[generate] ファイル出力に失敗: {}", e);
-            } else {
-                println!("[generate] {} を上書きしました", out_path.display());
+        }
+    }
+}
+
+/// 単一ファイルの出力処理
+fn process_single_file(
+    target: &Targets,
+    out_path: &Path,
+    output: &str,
+    overwrite: bool,
+    force: bool,
+) {
+    // 出力ディレクトリの作成
+    if let Some(parent) = out_path.parent() {
+        if !parent.exists() {
+            match std::fs::create_dir_all(parent) {
+                Ok(_) => {}
+                Err(e) => {
+                    eprintln!(
+                        "[generate] ディレクトリ作成に失敗: {}: {}",
+                        parent.display(),
+                        e
+                    );
+                    return;
+                }
             }
-            continue;
         }
+    }
 
-        // force: バックアップせず強制上書き
-        if file_exists && force {
-            if let Err(e) = fs::write(&out_path, &output) {
-                eprintln!("[generate] ファイル出力に失敗: {}", e);
-            } else {
-                println!("[generate] {} を強制上書きしました", out_path.display());
+    let file_exists = out_path.exists();
+
+    // overwrite: バックアップ作成して上書き
+    if file_exists && overwrite {
+        // 既存ファイルと新規内容が異なる場合のみバックアップ・上書き
+        match fs::read_to_string(out_path) {
+            Ok(existing_content) => {
+                if existing_content == output {
+                    // 差分がなければ何もせずスキップ
+                    println!("[generate] {} に差分なし。スキップ", out_path.display());
+                    return;
+                } else {
+                    // .bak拡張子を追加したバックアップパスを生成
+                    let bak_path = {
+                        let mut bak = out_path.to_path_buf();
+                        let bak_os = bak
+                            .file_name()
+                            .map(|n| {
+                                let mut s = n.to_os_string();
+                                s.push(".bak");
+                                s
+                            })
+                            .unwrap();
+                        bak.set_file_name(bak_os);
+                        bak
+                    };
+                    if let Err(e) = fs::copy(out_path, &bak_path) {
+                        eprintln!("[generate] バックアップ作成に失敗: {}", e);
+                        return;
+                    }
+                    println!("[generate] {} をバックアップしました", bak_path.display());
+                }
             }
-            continue;
+            Err(e) => {
+                eprintln!("[generate] 既存ファイルの読み込みに失敗: {}", e);
+                return;
+            }
         }
-
-        // 既存ファイルがありoverwrite/forceでない場合はスキップ
-        if file_exists {
-            println!(
-                "[generate] {} は既に存在します (--overwrite でバックアップ上書き, --force で強制上書き)",
-                out_path.display()
-            );
-            continue;
-        }
-
-        // 新規ファイル出力
-        if let Err(e) = fs::write(&out_path, &output) {
+        if let Err(e) = fs::write(out_path, output) {
             eprintln!("[generate] ファイル出力に失敗: {}", e);
         } else {
-            println!("[generate] {} を出力しました", out_path.display());
+            println!("[generate] {} を上書きしました", out_path.display());
         }
+        return;
+    }
+
+    // force: バックアップせず強制上書き
+    if file_exists && force {
+        if let Err(e) = fs::write(out_path, output) {
+            eprintln!(
+                "[generate] ファイル出力に失敗: {}: {}",
+                out_path.display(),
+                e
+            );
+        } else {
+            println!("[generate] {} を強制上書きしました", out_path.display());
+        }
+        return;
+    }
+
+    // 既存ファイルがありoverwrite/forceでない場合はスキップ
+    if file_exists {
+        println!(
+            "[generate] {} は既に存在します (--overwrite でバックアップ上書き, --force で強制上書き)",
+            out_path.display()
+        );
+        return;
+    }
+
+    // 新規ファイル出力
+    if let Err(e) = fs::write(out_path, output) {
+        eprintln!(
+            "[generate] ファイル出力に失敗: {}: {}",
+            out_path.display(),
+            e
+        );
+    } else {
+        println!(
+            "[generate] {}形式の出力を生成: {}",
+            target,
+            out_path.display()
+        );
     }
 }

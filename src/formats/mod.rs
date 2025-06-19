@@ -1,40 +1,64 @@
-use crate::model::types::{InstructionItem, InstruxConfiguration, Targets};
+use crate::model::types::{
+    InstructionItem, InstruxConfiguration, InstruxConfigurationTargetsValue,
+    InstruxConfigurationTargetsValueOutputMode, Targets,
+};
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 mod cline;
 mod codex;
 mod common;
 mod copilot;
+mod copilot_multiple;
 mod cursor;
 mod junie;
 
 #[cfg(test)]
 mod tests;
 
+/// フォーマット変換結果を表す型
+/// 単一ファイルの場合は単一の文字列、複数ファイルの場合はパス→内容のマップ
+pub enum FormatResult {
+    /// 単一ファイルの内容
+    Single(String),
+    /// 複数ファイルの内容 (ファイルパス→内容のマップ)
+    Multiple(HashMap<String, String>),
+}
+
 /// Trait for converting from the instrux model to a target format
 pub trait ToFormat {
     /// Convert from instrux model to the target format
-    fn to_format(&self, config: &InstruxConfiguration) -> Result<String, String>;
+    /// outputModeなどに応じて単一ファイルまたは複数ファイルを返す
+    fn to_format(&self, config: &InstruxConfiguration) -> Result<FormatResult, String>;
 
     /// Get the default file path for the target format
+    /// Single結果の場合のパス、Multiple結果の場合はベースディレクトリ
     fn get_default_path(&self) -> PathBuf;
+}
+
+/// Factory to get the converter for a specific target, outputModeも考慮
+pub fn get_converter(
+    target: &Targets,
+    target_config: &InstruxConfigurationTargetsValue,
+) -> Box<dyn ToFormat> {
+    match target {
+        Targets::Copilot => {
+            if target_config.output_mode == InstruxConfigurationTargetsValueOutputMode::Multiple {
+                return Box::new(copilot_multiple::CopilotMultipleConverter {});
+            }
+            Box::new(copilot::CopilotConverter {})
+        }
+        Targets::Cline => Box::new(cline::ClineConverter {}),
+        Targets::Cursor => Box::new(cursor::CursorConverter {}),
+        Targets::Junie => Box::new(junie::JunieConverter {}),
+        Targets::Codex => Box::new(codex::CodexConverter {}),
+    }
 }
 
 /// Trait for converting from a target format to the instrux model
 pub trait FromFormat {
     /// Convert from the target format to the instrux model
     fn from_format(content: &str) -> Result<Vec<InstructionItem>, String>;
-}
-
-/// Factory to get the converter for a specific target
-pub fn get_converter(target: &Targets) -> Box<dyn ToFormat> {
-    match target {
-        Targets::Copilot => Box::new(copilot::CopilotConverter {}),
-        Targets::Cline => Box::new(cline::ClineConverter {}),
-        Targets::Cursor => Box::new(cursor::CursorConverter {}),
-        Targets::Junie => Box::new(junie::JunieConverter {}),
-        Targets::Codex => Box::new(codex::CodexConverter {}),
-    }
 }
 
 pub fn from_format(target: &Targets, content: &str) -> Result<Vec<InstructionItem>, String> {

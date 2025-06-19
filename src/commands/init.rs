@@ -19,7 +19,8 @@ pub fn run(from: Option<String>) {
             }
         };
         // 入力ファイルパスを決定
-        let in_path = formats::get_converter(&target).get_default_path();
+        let in_path = formats::get_converter(&target, &InstruxConfigurationTargetsValue::default())
+            .get_default_path();
         let content = match fs::read_to_string(&in_path) {
             Ok(s) => s,
             Err(e) => {

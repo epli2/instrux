@@ -1,5 +1,5 @@
 use super::common;
-use super::{FromFormat, ToFormat};
+use super::{FormatResult, FromFormat, ToFormat};
 use crate::formats::common::TargetsChecker;
 use crate::model::types::{InstructionItem, InstruxConfiguration, Targets};
 use std::path::PathBuf;
@@ -8,7 +8,7 @@ use std::path::PathBuf;
 pub struct JunieConverter {}
 
 impl ToFormat for JunieConverter {
-    fn to_format(&self, config: &InstruxConfiguration) -> Result<String, String> {
+    fn to_format(&self, config: &InstruxConfiguration) -> Result<FormatResult, String> {
         let mut output = String::new();
 
         // Header
@@ -25,7 +25,7 @@ impl ToFormat for JunieConverter {
             },
         )?;
 
-        Ok(output)
+        Ok(FormatResult::Single(output))
     }
 
     fn get_default_path(&self) -> PathBuf {

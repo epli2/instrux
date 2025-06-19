@@ -30,7 +30,9 @@ pub fn run(tool: Option<String>) {
     };
 
     for target in targets {
-        match diff::diff_from_config(&config, target) {
+        let default_config = Default::default();
+        let target_config = config.targets.get(&target).unwrap_or(&default_config);
+        match diff::diff_from_config(&config, target, target_config) {
             Ok(d) => {
                 println!("--- {:?} ---\n{}", target, d);
             }

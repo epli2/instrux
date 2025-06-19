@@ -5,8 +5,8 @@
   "yaml.hover": true,
   "yaml.schemas": {
     "schema/instrux.schema.json": [
-        "instrux.yaml",
-        "instrux.yml"
+      "instrux.yaml",
+      "instrux.yml"
     ]
-}
+  }
 }

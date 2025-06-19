@@ -14,6 +14,13 @@ instructions:
         body_file: comments.md
       - title: TDD
         body: テスト駆動開発（TDD）を実践してください。まずテストを書き、その後に実装を行います。
-
+      - title: 検証
+        instructions:
+          - title: ユニットテスト
+            body: コードを実装した後、`cargo test`を実行して、すべてのテストがパスすることを確認します。
+          - title: フォーマット
+            body: コードを実装した後、`cargo fmt --all`を実行して、すべてのファイルをフォーマットします。
+          - title: Lint
+            body: コードを実装した後、`cargo clippy --fix --allow-dirty`を実行して、コードのLintを行います。
   - title: コミットメッセージ
     body: コミットメッセージはConventional Commits仕様に従ってください。

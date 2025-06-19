@@ -46,7 +46,11 @@ mod tests {
         let result = converter.to_format(&config);
         assert!(result.is_ok());
 
-        let output = result.unwrap();
+        let format_result = result.unwrap();
+        let output = match format_result {
+            crate::formats::FormatResult::Single(text) => text,
+            _ => panic!("Expected FormatResult::Single"),
+        };
         // Cursor形式のヘッダーや内容が含まれているかを確認
         assert!(output.contains("description: Project Rules"));
         assert!(output.contains("## Sample Instruction"));
