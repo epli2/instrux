@@ -24,7 +24,10 @@ fn main() {
             force,
             watch,
         } => {
-            commands::generate::run(dry_run, overwrite, force, watch);
+            if let Err(e) = commands::generate::run(dry_run, overwrite, force, watch) {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            }
         }
         Commands::Init { from } => {
             commands::init::run(from);
