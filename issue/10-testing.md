@@ -12,7 +12,7 @@
 ## タスク
 1. `core`クレートの各モジュールにユニットテストを実装
 2. `formats`クレートの各モジュールにユニットテストを実装
-3. `tests/integration.rs`に統合テストを実装
+3. `tests/integration_tests.rs`に統合テストを実装
 4. `tests/golden`ディレクトリにゴールデンテスト用のファイルを配置
 5. GitHub Actionsなどでの自動テスト実行の設定を実装
 

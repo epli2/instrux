@@ -1,0 +1,6 @@
+# version is intentionally missing to cause a parse error
+instructions:
+  - title: "Invalid Instruction"
+    body: "This is a code instruction."
+targets:
+  codex: {}

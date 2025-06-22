@@ -1,0 +1,11 @@
+version: "1.0.0" # schema_version -> version, and ensure semver format
+language: "Japanese" # Add language for testing
+instructions:
+  - title: "Test Project" # project_name moved here
+    description: "A simple test project." # description moved here
+    body: "This is a code instruction." # type, content, language, path are not direct fields of InstructionItem, using 'body'
+    # language: "rust" # This was part of a custom structure, not directly in InstructionItem like this
+    # path: "src/main.rs" # This was part of a custom structure, not directly in InstructionItem like this
+targets:
+  codex: {} # output is not a field here, it's determined by the converter
+  cline: {} # output_dir is not a field here
