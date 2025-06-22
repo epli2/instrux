@@ -1,4 +1,4 @@
-# Codex Instructions
+# Agents Instructions
 
 ## コーディング
 

@@ -32,7 +32,7 @@ instrx/                 # ← Git root / Cargo workspace
 │   │   │   ├── copilot.rs      # copilot-instructions.md
 │   │   │   ├── cursor.rs       # .cursor/rules
 │   │   │   ├── junie.rs        # .junie/guidelines.md
-│   │   │   └── codex.rs        # .codex/instructions.md
+│   │   │   └── agentsmd.rs        # AGENTS.md (Google Jules/OpenAI Codex)
 │   │   └── Cargo.toml
 │   └── cli/             # bin：エンドユーザ CLI
 │       ├── src/
@@ -49,14 +49,14 @@ instrx/                 # ← Git root / Cargo workspace
 
 ### 対応ファイル形式
 
-| 呼称    | 実ファイル名                    | ツール                             |
-| ------- | ------------------------------- | ---------------------------------- |
-| Cline   | .clinerules                     | Cline                              |
-| Copilot | .github/copilot-instructions.md | GitHub Copilot                     |
-| Cursor  | .cursor/rules                   | Cursor IDE                         |
-| Junie   | .junie/guidelines.md            | JetBrains Junie                    |
-| Codex   | CODEX.md                        | OpenAI Codex                       |
-| Instrux | .instrux/instrux.yaml           | 本ツールで定義する共通フォーマット |
+| 呼称      | 実ファイル名                    | ツール                                                                                                                                                                                                   |
+| --------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cline     | .clinerules                     | Cline                                                                                                                                                                                                    |
+| Copilot   | .github/copilot-instructions.md | GitHub Copilot                                                                                                                                                                                           |
+| Cursor    | .cursor/rules                   | Cursor IDE                                                                                                                                                                                               |
+| Junie     | .junie/guidelines.md            | JetBrains Junie                                                                                                                                                                                          |
+| AGENTS.md | AGENTS.md                       | [Google Jules](https://jules.google/docs/#include-agentsmd-file) / [OpenAI Codex](https://github.com/openai/codex/blob/b73426c1c40187ca13c74c03912a681072c2884f/codex-cli/src/utils/config.ts#L229-L233) |
+| Instrux   | .instrux/instrux.yaml           | 本ツールで定義する共通フォーマット                                                                                                                                                                       |
 
 ### CLI 仕様
 

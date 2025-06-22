@@ -48,7 +48,7 @@
     "targets": {
       "type": "string",
       "description": "AI coding tool format to generate",
-      "enum": ["copilot", "cline", "cursor", "junie", "codex"]
+      "enum": ["copilot", "cline", "cursor", "junie", "codex", "agentsmd"]
     },
     "instruction_item": {
       "type": "object",

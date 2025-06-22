@@ -703,7 +703,8 @@ impl<'de> ::serde::Deserialize<'de> for InstruxConfigurationVersion {
 ///    "cline",
 ///    "cursor",
 ///    "junie",
-///    "codex"
+///    "codex",
+///    "agentsmd"
 ///  ]
 ///}
 /// ```
@@ -731,6 +732,8 @@ pub enum Targets {
     Junie,
     #[serde(rename = "codex")]
     Codex,
+    #[serde(rename = "agentsmd")]
+    Agentsmd,
 }
 impl ::std::convert::From<&Self> for Targets {
     fn from(value: &Targets) -> Self {
@@ -745,6 +748,7 @@ impl ::std::fmt::Display for Targets {
             Self::Cursor => write!(f, "cursor"),
             Self::Junie => write!(f, "junie"),
             Self::Codex => write!(f, "codex"),
+            Self::Agentsmd => write!(f, "agentsmd"),
         }
     }
 }
@@ -759,6 +763,7 @@ impl ::std::str::FromStr for Targets {
             "cursor" => Ok(Self::Cursor),
             "junie" => Ok(Self::Junie),
             "codex" => Ok(Self::Codex),
+            "agentsmd" => Ok(Self::Agentsmd),
             _ => Err("invalid value".into()),
         }
     }
