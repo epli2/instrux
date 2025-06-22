@@ -223,25 +223,15 @@ fn process_single_file(
             println!("[generate] {} に差分なし。スキップ", out_path.display());
             return Ok(());
         } else {
-            // .bak拡張子を追加したバックアップパスを生成し、バックアップ
-            let bak_path = {
-                let mut bak = out_path.to_path_buf();
-                let bak_os = bak
-                    .file_name()
-                    .map(|n| {
-                        let mut s = n.to_os_string();
-                        s.push(".bak");
-                        s
-                    })
-                    .ok_or_else(|| {
-                        format!("[generate] バックアップパスの生成に失敗: {:?}", out_path)
-                    })?;
-                bak.set_file_name(bak_os);
-                bak
-            };
-            fs::copy(out_path, &bak_path)
-                .map_err(|e| format!("[generate] バックアップ作成に失敗: {}", e))?;
-            println!("[generate] {} をバックアップしました", bak_path.display());
+            // backup_and_remove_fileでバックアップ＆削除
+            match backup_and_remove_file(out_path) {
+                Ok(bak_path) => {
+                    println!("[generate] {} をバックアップしました", bak_path.display());
+                }
+                Err(msg) => {
+                    return Err(format!("[generate] バックアップ・削除に失敗: {}", msg));
+                }
+            }
         }
 
         fs::write(out_path, output).map_err(|e| format!("[generate] ファイル出力に失敗: {}", e))?;
