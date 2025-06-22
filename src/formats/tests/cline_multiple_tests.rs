@@ -1,5 +1,5 @@
 use crate::formats::ToFormat;
-use crate::formats::copilot_multiple::CopilotMultipleConverter;
+use crate::formats::cline_multiple::ClineMultipleConverter;
 use crate::model::types::{
     InstructionItem, InstructionItemVariant0Targets, InstruxConfiguration, Targets,
 };
@@ -12,17 +12,17 @@ fn create_test_config() -> InstruxConfiguration {
         body: "本文1".to_string(),
         description: Some("説明1".to_string()),
         disable: false,
-        targets: InstructionItemVariant0Targets::Variant0(vec![Targets::Copilot]),
+        targets: InstructionItemVariant0Targets::Variant0(vec![Targets::Cline]),
     };
     let instruction2 = InstructionItem::Variant0 {
         title: "インストラクション2".to_string(),
         body: "本文2".to_string(),
         description: None,
         disable: false,
-        targets: InstructionItemVariant0Targets::Variant0(vec![Targets::Copilot]),
+        targets: InstructionItemVariant0Targets::Variant0(vec![Targets::Cline]),
     };
     let mut targets_map = HashMap::new();
-    targets_map.insert(Targets::Copilot, Default::default());
+    targets_map.insert(Targets::Cline, Default::default());
     let version = "0.1.0".parse().expect("Valid version string");
     InstruxConfiguration {
         instructions: vec![instruction1, instruction2],
@@ -33,10 +33,10 @@ fn create_test_config() -> InstruxConfiguration {
 }
 
 #[test]
-fn test_copilot_multiple_converter_to_format() {
-    // CopilotMultipleConverterのインスタンス生成
+fn test_cline_multiple_converter_to_format() {
+    // ClineMultipleConverterのインスタンス生成
     let config = create_test_config();
-    let converter = CopilotMultipleConverter {};
+    let converter = ClineMultipleConverter {};
 
     // to_formatでファイル名と内容のペアを取得
     let result = converter.to_format(&config);
@@ -55,11 +55,11 @@ fn test_copilot_multiple_converter_to_format() {
     // ファイル名と内容の検証
     let expected_files = vec![
         (
-            ".github/instructions/インストラクション1.instructions.md",
-            "---\ndescription: 説明1\n---\n\n# インストラクション1\n\n本文1\n",
+            ".clinerules/インストラクション1.md",
+            "# インストラクション1\n\n本文1\n",
         ),
         (
-            ".github/instructions/インストラクション2.instructions.md",
+            ".clinerules/インストラクション2.md",
             "# インストラクション2\n\n本文2\n",
         ),
     ];
