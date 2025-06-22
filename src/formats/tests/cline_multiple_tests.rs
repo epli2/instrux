@@ -1,8 +1,3 @@
-// ClineMultipleConverterのテスト
-// TDD: まずテストを書く
-//
-// ClineMultipleConverterはoutputMode=multipleの場合、.clinerules/*.md形式で複数ファイルを出力する
-
 use crate::formats::ToFormat;
 use crate::formats::cline_multiple::ClineMultipleConverter;
 use crate::model::types::{

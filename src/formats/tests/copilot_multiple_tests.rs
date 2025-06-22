@@ -1,8 +1,3 @@
-// CopilotMultipleConverterのテスト
-// TDD: まずテストを書く
-//
-// CopilotMultipleConverterはoutputMode=multipleの場合、.github/instructions/*.instructions.md形式で複数ファイルを出力する
-
 use crate::formats::ToFormat;
 use crate::formats::copilot_multiple::CopilotMultipleConverter;
 use crate::model::types::{
