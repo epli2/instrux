@@ -26,11 +26,23 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-cargo-
+    - name: Install llvm-tools
+      run: sudo apt-get update && sudo apt-get install -y llvm-tools
+    - name: Install cargo-llvm-cov
+      run: cargo install cargo-llvm-cov --locked
     - name: Format
       run: cargo fmt -- --check
     - name: Build
       run: cargo build --verbose
     - name: Test
       run: cargo test --verbose
+    - name: Generate code coverage
+      run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # Optional: add if you have a private repo or want to ensure uploads
+        files: lcov.info # Specify the coverage file
+        fail_ci_if_error: true # Optional: fail CI if Codecov upload fails
     - name: Clippy
       run: cargo clippy -- -D warnings

@@ -1,6 +1,8 @@
 # Instrux
 
 [![CI](https://github.com/epli2/instrux/actions/workflows/rust.yml/badge.svg)](https://github.com/epli2/instrux/actions/workflows/rust.yml)
+[![codecov](https://codecov.io/gh/epli2/instrux/branch/main/graph/badge.svg?token=YOUR_CODECOV_TOKEN_HERE)](https://codecov.io/gh/epli2/instrux)
+<!-- TODO: Replace YOUR_CODECOV_TOKEN_HERE with the actual token if needed, or remove if public repo and token is not strictly necessary -->
 
 WIP
 
@@ -82,3 +84,33 @@ instrx/                 # ← Git root / Cargo workspace
 #### instrux.yaml
 
 `schema/instrux.schema.json`参照
+
+## Code Coverage
+
+This project uses `cargo-llvm-cov` for code coverage. To generate a coverage report locally:
+
+1. Install `cargo-llvm-cov`:
+   ```bash
+   cargo install cargo-llvm-cov --locked
+   ```
+2. Install `llvm-tools`:
+   ```bash
+   # On Debian/Ubuntu
+   sudo apt-get update && sudo apt-get install -y llvm-tools
+   # On macOS (using Homebrew)
+   # brew install llvm
+   ```
+3. Run the coverage command from the root of the project:
+   ```bash
+   cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+   ```
+   This will generate an LCOV report at `lcov.info`. You can then use tools like `genhtml` (part of LCOV) to view it as HTML:
+   ```bash
+   # Install lcov if you don't have it
+   # sudo apt-get install lcov (Debian/Ubuntu)
+   # brew install lcov (macOS)
+   genhtml lcov.info --output-directory coverage-html
+   ```
+   Then open `coverage-html/index.html` in your browser.
+
+Coverage is also automatically tracked on CI using Codecov.
