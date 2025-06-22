@@ -5,9 +5,9 @@ use crate::model::types::{
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+mod agentsmd;
 mod cline;
 mod cline_multiple;
-mod codex;
 mod common;
 mod copilot;
 mod copilot_multiple;
@@ -57,7 +57,8 @@ pub fn get_converter(
         }
         Targets::Cursor => Box::new(cursor::CursorConverter {}),
         Targets::Junie => Box::new(junie::JunieConverter {}),
-        Targets::Codex => Box::new(codex::CodexConverter {}),
+        Targets::Agentsmd => Box::new(agentsmd::AgentsMdConverter {}),
+        Targets::Codex => unreachable!("Codex is deprecated. Use agentsmd (AGENTS.md) instead."),
     }
 }
 
@@ -73,6 +74,9 @@ pub fn from_format(target: &Targets, content: &str) -> Result<Vec<InstructionIte
         Targets::Cline => cline::ClineParser::from_format(content),
         Targets::Cursor => cursor::CursorParser::from_format(content),
         Targets::Junie => junie::JunieParser::from_format(content),
-        Targets::Codex => codex::CodexParser::from_format(content),
+        Targets::Agentsmd => agentsmd::AgentsMdParser::from_format(content),
+        Targets::Codex => {
+            unreachable!("Codex is deprecated. Use agentsmd (AGENTS.md) instead.")
+        }
     }
 }

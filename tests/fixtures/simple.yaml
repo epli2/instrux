@@ -7,5 +7,5 @@ instructions:
     # language: "rust" # This was part of a custom structure, not directly in InstructionItem like this
     # path: "src/main.rs" # This was part of a custom structure, not directly in InstructionItem like this
 targets:
-  codex: {} # output is not a field here, it's determined by the converter
-  cline: {} # output_dir is not a field here
+  agentsmd: {}
+  cline: {}

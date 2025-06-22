@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=../schema/instrux.schema.json
 version: 0.1.0
 targets:
+  agentsmd: {}
   copilot:
     outputMode: multiple
-  codex: {}
   cline:
     outputMode: multiple
   cursor: {}
