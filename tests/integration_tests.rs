@@ -29,14 +29,14 @@ fn test_generate_basic() -> Result<(), Box<dyn std::error::Error>> {
             "[generate] codex形式の出力を生成: CODEX.md",
         ))
         .stdout(predicate::str::contains(
-            "[generate] cline形式の出力を生成: .clinerules/instructions.md",
+            "[generate] cline形式の出力を生成: .clinerules",
         ));
 
     let codex_content = fs::read_to_string(temp_dir.path().join("CODEX.md"))?;
     assert!(codex_content.contains("Test Project"));
     assert!(codex_content.contains("This is a code instruction."));
 
-    let cline_content = fs::read_to_string(temp_dir.path().join(".clinerules/instructions.md"))?;
+    let cline_content = fs::read_to_string(temp_dir.path().join(".clinerules"))?;
     assert!(cline_content.contains("Test Project"));
     assert!(cline_content.contains("This is a code instruction."));
 
@@ -64,12 +64,7 @@ fn test_generate_dry_run() -> Result<(), Box<dyn std::error::Error>> {
 
     // Assert that files are not actually created
     assert!(!temp_dir.path().join("CODEX.md").exists());
-    assert!(
-        !temp_dir
-            .path()
-            .join(".clinerules/instructions.md") // Updated path
-            .exists()
-    );
+    assert!(!temp_dir.path().join(".clinerules").exists());
 
     Ok(())
 }
@@ -87,11 +82,8 @@ fn test_generate_overwrite() -> Result<(), Box<dyn std::error::Error>> {
     // Create dummy output files
     fs::write(temp_dir.path().join("CODEX.md"), "old codex content")?;
     let clinerules_dir = temp_dir.path().join(".clinerules");
-    fs::create_dir_all(&clinerules_dir)?;
-    fs::write(
-        clinerules_dir.join("instructions.md"), // Updated path
-        "old cline content",
-    )?;
+    // シングルファイル用のダミーファイルを作成
+    fs::write(&clinerules_dir, "old cline content")?;
 
     let mut cmd = Command::new(get_binary_path());
     cmd.current_dir(temp_dir.path())
@@ -104,35 +96,24 @@ fn test_generate_overwrite() -> Result<(), Box<dyn std::error::Error>> {
         ))
         .stdout(predicate::str::contains("CODEX.md を上書きしました"))
         .stdout(predicate::str::contains(
-            ".clinerules/instructions.md.bak をバックアップしました",
+            ".clinerules.bak をバックアップしました",
         ))
-        .stdout(predicate::str::contains(
-            ".clinerules/instructions.md を上書きしました",
-        ));
+        .stdout(predicate::str::contains(".clinerules を上書きしました"));
 
     // Assert that backup files exist
     assert!(temp_dir.path().join("CODEX.md.bak").exists());
-    assert!(
-        temp_dir
-            .path()
-            .join(".clinerules/instructions.md.bak") // Updated path
-            .exists()
-    );
+    assert!(temp_dir.path().join(".clinerules.bak").exists());
 
     // Assert that new files are created and content is correct
     let codex_content = fs::read_to_string(temp_dir.path().join("CODEX.md"))?;
     assert!(codex_content.contains("Test Project"));
-    let cline_content = fs::read_to_string(
-        temp_dir.path().join(".clinerules/instructions.md"), // Updated path
-    )?;
+    let cline_content = fs::read_to_string(temp_dir.path().join(".clinerules"))?;
     assert!(cline_content.contains("Test Project"));
 
     // Assert that backup content is the old content
     let codex_bak_content = fs::read_to_string(temp_dir.path().join("CODEX.md.bak"))?;
     assert_eq!(codex_bak_content, "old codex content");
-    let cline_bak_content = fs::read_to_string(
-        temp_dir.path().join(".clinerules/instructions.md.bak"), // Updated path
-    )?;
+    let cline_bak_content = fs::read_to_string(temp_dir.path().join(".clinerules.bak"))?;
     assert_eq!(cline_bak_content, "old cline content");
 
     Ok(())
@@ -151,11 +132,8 @@ fn test_generate_force() -> Result<(), Box<dyn std::error::Error>> {
     // Create dummy output files
     fs::write(temp_dir.path().join("CODEX.md"), "old codex content")?;
     let clinerules_dir = temp_dir.path().join(".clinerules");
-    fs::create_dir_all(&clinerules_dir)?;
-    fs::write(
-        clinerules_dir.join("instructions.md"), // Updated path
-        "old cline content",
-    )?;
+    // シングルファイル用のダミーファイルを作成
+    fs::write(&clinerules_dir, "old cline content")?;
 
     let mut cmd = Command::new(get_binary_path());
     cmd.current_dir(temp_dir.path())
@@ -165,24 +143,17 @@ fn test_generate_force() -> Result<(), Box<dyn std::error::Error>> {
         .success()
         .stdout(predicate::str::contains("CODEX.md を強制上書きしました")) // This message seems correct
         .stdout(predicate::str::contains(
-            ".clinerules/instructions.md を強制上書きしました", // Updated path
+            ".clinerules を強制上書きしました", // Updated path
         ));
 
     // Assert that backup files do NOT exist
     assert!(!temp_dir.path().join("CODEX.md.bak").exists());
-    assert!(
-        !temp_dir
-            .path()
-            .join(".clinerules/instructions.md.bak") // Updated path
-            .exists()
-    );
+    assert!(!temp_dir.path().join(".clinerules.bak").exists());
 
     // Assert that new files are created and content is correct
     let codex_content = fs::read_to_string(temp_dir.path().join("CODEX.md"))?;
     assert!(codex_content.contains("Test Project"));
-    let cline_content = fs::read_to_string(
-        temp_dir.path().join(".clinerules/instructions.md"), // Updated path
-    )?;
+    let cline_content = fs::read_to_string(temp_dir.path().join(".clinerules"))?;
     assert!(cline_content.contains("Test Project"));
 
     Ok(())

@@ -29,7 +29,7 @@ impl ToFormat for ClineConverter {
     }
 
     fn get_default_path(&self) -> PathBuf {
-        PathBuf::from(".clinerules/instructions.md") // ディレクトリではなくファイルを指定
+        PathBuf::from(".clinerules") // 単一ファイルは .clinerules ファイルに出力
     }
 }
 

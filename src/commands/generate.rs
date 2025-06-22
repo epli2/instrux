@@ -214,16 +214,8 @@ fn process_single_file(
 
     // overwrite: バックアップ作成して上書き
     if file_exists && overwrite {
-        // 既存ファイルと新規内容が異なる場合のみバックアップ・上書き
-        let existing_content = fs::read_to_string(out_path)
-            .map_err(|e| format!("[generate] 既存ファイルの読み込みに失敗: {}", e))?;
-
-        if existing_content == output {
-            // 差分がなければ何もせずスキップ
-            println!("[generate] {} に差分なし。スキップ", out_path.display());
-            return Ok(());
-        } else {
-            // backup_and_remove_fileでバックアップ＆削除
+        // ディレクトリが存在する場合はバックアップ・削除
+        if out_path.is_dir() {
             match backup_and_remove_file(out_path) {
                 Ok(bak_path) => {
                     println!("[generate] {} をバックアップしました", bak_path.display());
@@ -234,6 +226,23 @@ fn process_single_file(
             }
         }
 
+        // 既存ファイルと新規内容が異なる場合のみバックアップ・上書き
+        let existing_content = fs::read_to_string(out_path)
+            .map_err(|e| format!("[generate] 既存ファイルの読み込みに失敗: {}", e))?;
+        if existing_content == output {
+            // 差分がなければ何もせずスキップ
+            println!("[generate] {} に差分なし。スキップ", out_path.display());
+            return Ok(());
+        } else {
+            match backup_and_remove_file(out_path) {
+                Ok(bak_path) => {
+                    println!("[generate] {} をバックアップしました", bak_path.display());
+                }
+                Err(msg) => {
+                    return Err(format!("[generate] バックアップ・削除に失敗: {}", msg));
+                }
+            }
+        }
         fs::write(out_path, output).map_err(|e| format!("[generate] ファイル出力に失敗: {}", e))?;
         println!("[generate] {} を上書きしました", out_path.display());
         return Ok(());
@@ -241,6 +250,16 @@ fn process_single_file(
 
     // force: バックアップせず強制上書き
     if file_exists && force {
+        // ディレクトリが存在する場合は削除
+        if out_path.is_dir() {
+            std::fs::remove_dir_all(out_path).map_err(|e| {
+                format!(
+                    "[generate] ディレクトリ削除に失敗: {}: {}",
+                    out_path.display(),
+                    e
+                )
+            })?;
+        }
         fs::write(out_path, output).map_err(|e| {
             format!(
                 "[generate] ファイル出力に失敗: {}: {}",
