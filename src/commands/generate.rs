@@ -104,6 +104,41 @@ fn generate_once(dry_run: bool, overwrite: bool, force: bool) {
                 // 複数ファイルの場合
                 let base_path = converter.get_default_path();
 
+                // force/overwrite指定時、既存のbase_pathがファイルなら削除してからディレクトリ作成
+                if (force || overwrite) && base_path.exists() && base_path.is_file() {
+                    if overwrite {
+                        match backup_and_remove_file(&base_path) {
+                            Ok(bak_path) => {
+                                println!(
+                                    "[generate] {} をバックアップしました",
+                                    bak_path.display()
+                                );
+                            }
+                            Err(msg) => {
+                                eprintln!("[generate] {}", msg);
+                                return;
+                            }
+                        }
+                    } else {
+                        match std::fs::remove_file(&base_path) {
+                            Ok(_) => {
+                                println!(
+                                    "[generate] {} (ファイル) を削除しました",
+                                    base_path.display()
+                                );
+                            }
+                            Err(e) => {
+                                eprintln!(
+                                    "[generate] 既存ファイルの削除に失敗: {}: {}",
+                                    base_path.display(),
+                                    e
+                                );
+                                return;
+                            }
+                        }
+                    }
+                }
+
                 // ベースディレクトリの作成
                 if !base_path.exists() {
                     match std::fs::create_dir_all(&base_path) {
@@ -148,6 +183,26 @@ fn generate_once(dry_run: bool, overwrite: bool, force: bool) {
     }
 }
 
+/// 指定ファイルを .bak でバックアップし、元ファイルを削除する
+fn backup_and_remove_file(path: &Path) -> Result<std::path::PathBuf, String> {
+    let bak_path = {
+        let mut bak = path.to_path_buf();
+        let bak_os = bak
+            .file_name()
+            .map(|n| {
+                let mut s = n.to_os_string();
+                s.push(".bak");
+                s
+            })
+            .ok_or("ファイル名の取得に失敗")?;
+        bak.set_file_name(bak_os);
+        bak
+    };
+    std::fs::copy(path, &bak_path).map_err(|e| format!("バックアップ作成に失敗: {}", e))?;
+    std::fs::remove_file(path).map_err(|e| format!("既存ファイルの削除に失敗: {}", e))?;
+    Ok(bak_path)
+}
+
 /// 単一ファイルの出力処理
 fn process_single_file(
     target: &Targets,
@@ -185,25 +240,15 @@ fn process_single_file(
                     println!("[generate] {} に差分なし。スキップ", out_path.display());
                     return;
                 } else {
-                    // .bak拡張子を追加したバックアップパスを生成
-                    let bak_path = {
-                        let mut bak = out_path.to_path_buf();
-                        let bak_os = bak
-                            .file_name()
-                            .map(|n| {
-                                let mut s = n.to_os_string();
-                                s.push(".bak");
-                                s
-                            })
-                            .unwrap();
-                        bak.set_file_name(bak_os);
-                        bak
-                    };
-                    if let Err(e) = fs::copy(out_path, &bak_path) {
-                        eprintln!("[generate] バックアップ作成に失敗: {}", e);
-                        return;
+                    match backup_and_remove_file(out_path) {
+                        Ok(bak_path) => {
+                            println!("[generate] {} をバックアップしました", bak_path.display());
+                        }
+                        Err(msg) => {
+                            eprintln!("[generate] {}", msg);
+                            return;
+                        }
                     }
-                    println!("[generate] {} をバックアップしました", bak_path.display());
                 }
             }
             Err(e) => {

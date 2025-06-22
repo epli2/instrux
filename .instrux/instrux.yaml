@@ -3,7 +3,8 @@ targets:
   copilot:
     outputMode: multiple
   codex: {}
-  cline: {}
+  cline:
+    outputMode: multiple
   cursor: {}
   junie: {}
 language: Japanese

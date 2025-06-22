@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 mod cline;
+mod cline_multiple;
 mod codex;
 mod common;
 mod copilot;
@@ -48,7 +49,12 @@ pub fn get_converter(
             }
             Box::new(copilot::CopilotConverter {})
         }
-        Targets::Cline => Box::new(cline::ClineConverter {}),
+        Targets::Cline => {
+            if target_config.output_mode == InstruxConfigurationTargetsValueOutputMode::Multiple {
+                return Box::new(cline_multiple::ClineMultipleConverter {});
+            }
+            Box::new(cline::ClineConverter {})
+        }
         Targets::Cursor => Box::new(cursor::CursorConverter {}),
         Targets::Junie => Box::new(junie::JunieConverter {}),
         Targets::Codex => Box::new(codex::CodexConverter {}),
