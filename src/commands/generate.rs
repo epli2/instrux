@@ -147,9 +147,8 @@ fn generate_once(dry_run: bool, overwrite: bool, force: bool) -> Result<(), Stri
                 }
 
                 // 各ファイルに書き込み
-                for (rel_path, content) in files {
-                    let file_path = base_path.join(rel_path); // base_pathからの相対パスとして扱う
-
+                for (file_path, content) in files {
+                    let file_path = Path::new(&file_path);
                     // 親ディレクトリの作成 (存在しない場合)
                     if let Some(parent) = file_path.parent() {
                         if !parent.exists() {
@@ -162,7 +161,7 @@ fn generate_once(dry_run: bool, overwrite: bool, force: bool) -> Result<(), Stri
                             })?;
                         }
                     }
-                    process_single_file(target, &file_path, &content, overwrite, force)?;
+                    process_single_file(target, file_path, &content, overwrite, force)?;
                 }
             }
         }
@@ -234,7 +233,9 @@ fn process_single_file(
                         s.push(".bak");
                         s
                     })
-                    .ok_or_else(|| format!("[generate] バックアップパスの生成に失敗: {:?}", out_path))?;
+                    .ok_or_else(|| {
+                        format!("[generate] バックアップパスの生成に失敗: {:?}", out_path)
+                    })?;
                 bak.set_file_name(bak_os);
                 bak
             };
@@ -243,8 +244,7 @@ fn process_single_file(
             println!("[generate] {} をバックアップしました", bak_path.display());
         }
 
-        fs::write(out_path, output)
-            .map_err(|e| format!("[generate] ファイル出力に失敗: {}", e))?;
+        fs::write(out_path, output).map_err(|e| format!("[generate] ファイル出力に失敗: {}", e))?;
         println!("[generate] {} を上書きしました", out_path.display());
         return Ok(());
     }
