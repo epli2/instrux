@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../schema/instrux.schema.json
 version: 0.1.0
 targets:
   copilot:
@@ -26,3 +27,5 @@ instructions:
             body: コードを実装した後、`cargo clippy --fix --allow-dirty`を実行して、コードのLintを行います。
   - title: コミットメッセージ
     body: コミットメッセージはConventional Commits仕様に従ってください。
+  - title: ブランチ運用
+    body: 作業開始前に現在のブランチがmainの場合、指示されたタスク内容に沿ったブランチ名で新しいブランチを作成し、そのブランチに切り替えてから作業を開始してください。
