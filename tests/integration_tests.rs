@@ -1,9 +1,8 @@
-use assert_cmd::prelude::*; // Add methods on commands
-use predicates::prelude::*; // Used for writing assertions
+use assert_cmd::prelude::*;
+use predicates::prelude::*;
 use std::fs;
-use std::process::Command; // Run programs
-// use std::path::Path; // Not strictly needed as fs::read_to_string and Path::join work with &str
-use tempfile::tempdir; // Create temporary directories
+use std::process::Command;
+use tempfile::tempdir;
 
 // Helper function to get the path to the compiled binary
 fn get_binary_path() -> String {
